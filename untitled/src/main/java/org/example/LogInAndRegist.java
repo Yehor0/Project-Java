@@ -34,7 +34,6 @@ public class LogInAndRegist {
     }
 
     public void Regist() {
-        this.lengthOfUsers++;
         Scanner scan = new Scanner(System.in);
         System.out.println("Write your nickname : ");
         this.name = scan.nextLine();
@@ -50,6 +49,12 @@ public class LogInAndRegist {
             throw new RuntimeException(e);
         }
         lengthOfUsers++;
+        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Project", "root", "561151181Yehor*")) {
+            Statement stmt = connection.createStatement();
+            boolean rs = stmt.execute("Insert Into Profile (ID , Account) Values(" + lengthOfUsers + " , " + 0 + ");");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Project", "root", "561151181Yehor*")) {
             Statement stmt = connection.createStatement();
             boolean rs = stmt.execute("Insert Into Users Values('" + name + "' , '" + password + "' , '" + lengthOfUsers + "');");
