@@ -33,6 +33,8 @@ public class Shares {
         }
     }
     public void BuyShares(int ID , int IDShares) {
+        int price = 0;
+        int account = 0;
         try(Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/Project", "root", "561151181Yehor*")) {
             Statement stmt = con.createStatement();
             boolean rs = stmt.execute("Update Shares Set OwnerID = " + ID + " Where ID =" + IDShares + ";");
@@ -42,13 +44,17 @@ public class Shares {
         }
         try(Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/Project", "root", "561151181Yehor*")) {
             Statement stmt = con.createStatement();
-            ResultSet resAccount = stmt.executeQuery("Select * From Profile Where ID =" + ID );
             ResultSet resPrice = stmt.executeQuery("Select * From Shares Where ID =" + IDShares );
-            int price = resPrice.getInt(3);
-            int account = resAccount.getInt(4);
+            while (resPrice.next()) {
+                price = resPrice.getInt(3);
+            }
+            ResultSet resAccount = stmt.executeQuery("Select * From Profile Where ID =" + ID );
+            while (resAccount.next()) {
+                account = resAccount.getInt(4);
+            }
             System.out.println((account - price));
             try {
-                boolean rs = stmt.execute("Update Profile Inner Join Shares Shares.ID = Profile.ID Set Profile.Account = " + (account - price) );
+                boolean rs = stmt.execute("Update Profile Set Account = " + (account - price) + " Where ID=" + ID );
             }catch (Exception e) {
                 throw new RuntimeException(e);
                 //System.out.println("Insufficient funds");
