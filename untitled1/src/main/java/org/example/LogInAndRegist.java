@@ -3,9 +3,9 @@ package org.example;
 import java.sql.*;
 import java.util.Scanner;
 
-public class LogInOrRegist {
-    int lengthOfUsers = 0;
-    int ID;
+public class LogInAndRegist {
+    private int lengthOfUsers = 0;
+    private int ID;
     private String name;
     private String password;
 
@@ -15,15 +15,23 @@ public class LogInOrRegist {
         this.name = scan.nextLine();
         System.out.println("Your password : ");
         this.password = scan.nextLine();
+
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Project", "root", "561151181Yehor*")) {
             Statement stmt = connection.createStatement();
-            boolean rs = stmt.execute("Select * from Users Where Exists (Select * from Users Where Name = '" + name + "' AND Password = '" + password + "');");
-            return rs;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            ResultSet rs = stmt.executeQuery("Select Count(Name) from Users Where Name = '" + name + "' AND Password = '" + password + "';");
+            int n = 0;
+            if (rs.next()) {
+                n = rs.getInt(1);
+            }
+            if (n == 0) {
+                return false;
+            } else {
+                return true;
+            }
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
         }
     }
-
 
     public void Regist() {
         this.lengthOfUsers++;
@@ -41,24 +49,25 @@ public class LogInOrRegist {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        ID = lengthOfUsers;
+        lengthOfUsers++;
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Project", "root", "561151181Yehor*")) {
             Statement stmt = connection.createStatement();
             boolean rs = stmt.execute("Insert Into Users Values('" + name + "' , '" + password + "' , '" + lengthOfUsers + "');");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
 
-    public int getID() {
+    public int TakeID() {
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Project", "root", "561151181Yehor*")) {
             Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("Select ID from Users Where Name = '" + this.name + "';");
-            this.ID = rs.getInt(3);
+            ResultSet rs = stmt.executeQuery("Select * from Users Where Name = '" + name + "';");
+            while (rs.next()) {
+                this.ID = rs.getInt(3);
+            }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.out.println(e);
         }
-            return ID;
-        }
+        return ID;
     }
+}
