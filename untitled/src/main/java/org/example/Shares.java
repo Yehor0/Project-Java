@@ -52,12 +52,11 @@ public class Shares {
             while (resAccount.next()) {
                 account = resAccount.getInt(4);
             }
-            System.out.println((account - price));
+            System.out.println("Your Account after buying : " + (account - price));
             try {
                 boolean rs = stmt.execute("Update Profile Set Account = " + (account - price) + " Where ID=" + ID );
             }catch (Exception e) {
-                throw new RuntimeException(e);
-                //System.out.println("Insufficient funds");
+                System.out.println("Insufficient funds");
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);

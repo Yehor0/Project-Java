@@ -8,6 +8,8 @@ public class LogInAndRegist {
     private int ID;
     private String name;
     private String password;
+    String city;
+    String country;
 
     public boolean LogIn() {
         Scanner scan = new Scanner(System.in);
@@ -49,6 +51,7 @@ public class LogInAndRegist {
             throw new RuntimeException(e);
         }
         lengthOfUsers++;
+        ID = lengthOfUsers;
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/Project", "root", "561151181Yehor*")) {
             Statement stmt = connection.createStatement();
             boolean rs = stmt.execute("Insert Into Profile (ID , Account) Values(" + lengthOfUsers + " , " + 0 + ");");
@@ -74,5 +77,22 @@ public class LogInAndRegist {
             System.out.println(e);
         }
         return ID;
+    }
+    public void AdditionalInfo() {
+        Scanner scan = new Scanner(System.in);
+//        System.out.println("Do you want add an additional information ");
+//        System.out.println("If yes press 1 , else press 2");
+//        int i = scan.nextInt();
+            System.out.println("Your city : ");
+            city = scan.nextLine();
+            System.out.println("Your country : ");
+            country = scan.nextLine();
+            try(Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/Project", "root", "561151181Yehor*")) {
+                Statement stmt = con.createStatement();
+                boolean rs = stmt.execute("Update Profile Set City = '" + city + "' , Country = '" + country + "' Where ID = " + ID + ";");
+                System.out.println("Successful");
+            } catch (SQLException e) {
+                System.out.println(e);
+        }
     }
 }
