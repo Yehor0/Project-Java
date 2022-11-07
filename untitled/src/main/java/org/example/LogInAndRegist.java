@@ -8,8 +8,8 @@ public class LogInAndRegist {
     private int ID;
     private String name;
     private String password;
-    String city;
-    String country;
+    private String city;
+    private String country;
 
     public boolean LogIn() {
         Scanner scan = new Scanner(System.in);
@@ -80,9 +80,6 @@ public class LogInAndRegist {
     }
     public void AdditionalInfo() {
         Scanner scan = new Scanner(System.in);
-//        System.out.println("Do you want add an additional information ");
-//        System.out.println("If yes press 1 , else press 2");
-//        int i = scan.nextInt();
             System.out.println("Your city : ");
             city = scan.nextLine();
             System.out.println("Your country : ");

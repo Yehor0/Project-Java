@@ -11,7 +11,7 @@ public class YourProfile {
                 System.out.println("Name : " + rs.getString(1));
                 System.out.println("City : " + rs.getString(2));
                 System.out.println("Country : " + rs.getString(3));
-                System.out.println("Account: " + rs.getInt(4));
+                System.out.println("Account: " + rs.getInt(4) + "\n");
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
