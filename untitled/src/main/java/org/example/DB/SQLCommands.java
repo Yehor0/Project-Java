@@ -160,4 +160,20 @@ public class SQLCommands extends ReadAndWriteDB{
             System.out.println("\n Don't enough money \n");
         }
     }
+    public boolean checkAdditionalInfo(int id) {
+        int n = 0;
+        boolean didAdd = false;
+        try {
+            ResultSet rs = connectRead("Select * From Profile Where ID = " + id + " And City Is Not Null");
+            while (rs.next()) {
+                n++;
+            }
+            if (n == 1) {
+                didAdd = true;
+            }
+        }catch (Exception e) {
+            System.out.println(e);
+        }
+        return didAdd;
+    }
 }
