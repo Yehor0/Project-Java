@@ -5,7 +5,7 @@ import java.sql.*;
 public class SQLCommands extends ReadAndWriteDB{
     private int ID;
     public int takeID(String name) {
-        ResultSet rs = ConnectRead("Select ID from Users Where Name = '" + name + "'");
+        ResultSet rs = connectRead("Select ID from Users Where Name = '" + name + "'");
         try {
             while (rs.next()) {
                 ID = rs.getInt(1);
@@ -19,7 +19,7 @@ public class SQLCommands extends ReadAndWriteDB{
 
     public boolean logIn(String name, String password) {
         try {
-            ResultSet rs = ConnectRead("Select Count(Name) from Users Where Name = '" + name + "' AND Password = '" + password + "';");
+            ResultSet rs = connectRead("Select Count(Name) from Users Where Name = '" + name + "' AND Password = '" + password + "';");
             int n = 0;
             if (rs.next()) {
                 n = rs.getInt(1);
@@ -35,7 +35,7 @@ public class SQLCommands extends ReadAndWriteDB{
     }
 
     public void regist(String name, String password) {
-        ResultSet rs = ConnectRead("Select Count(ID) from Users");
+        ResultSet rs = connectRead("Select Count(ID) from Users");
         while (true) {
             try {
                 if (!rs.next()) break;
@@ -49,17 +49,17 @@ public class SQLCommands extends ReadAndWriteDB{
             }
         }
         ID++;
-        ConnectWrite("Insert Into Profile (ID , Account) Values(" + ID + " , " + 0 + ");");
-        ConnectWrite("Insert Into Users Values('" + name + "' , '" + password + "' , '" + ID + "');");
+        connectWrite("Insert Into Profile (ID , Account) Values(" + ID + " , " + 0 + ");");
+        connectWrite("Insert Into Users Values('" + name + "' , '" + password + "' , '" + ID + "');");
     }
 
     public void additionalInfo(String city, String country) {
-        ConnectWrite("Update Profile Set City = '" + city + "' , Country = '" + country + "' Where ID = " + ID + ";");
+        connectWrite("Update Profile Set City = '" + city + "' , Country = '" + country + "' Where ID = " + ID + ";");
         System.out.println("Successful");
     }
 
     public void showProfile(int ID) {
-        ResultSet rs = ConnectRead("Select Users.Name ,  Profile.City , Profile.Country , Profile.Account from Profile Inner Join Users ON Profile.ID = Users.ID Where Profile.ID = " + ID);
+        ResultSet rs = connectRead("Select Users.Name ,  Profile.City , Profile.Country , Profile.Account from Profile Inner Join Users ON Profile.ID = Users.ID Where Profile.ID = " + ID);
         while (true) {
             try {
                 if (!rs.next()) break;
@@ -77,55 +77,87 @@ public class SQLCommands extends ReadAndWriteDB{
         }
     }
     public ResultSet getYourShares(int id) throws SQLException {
-        ResultSet rs = ConnectRead("Select Shares.Name , Shares.Price , Purchase.Quantity from Purchase Inner Join Shares On Shares.ID = Purchase.SharesID Where Purchase.OwnerID = " + id);
+        ResultSet rs = connectRead("Select Shares.Name , Shares.Price , Purchase.Quantity from Purchase Inner Join Shares On Shares.ID = Purchase.SharesID Where Purchase.OwnerID = " + id);
         return rs;
     }
     public ResultSet getUnBuyShares(int id) throws SQLException {
-        ResultSet rs = ConnectRead("Select Name , Price , Quantity From Shares Where Quantity IS Not Null");
+        ResultSet rs = connectRead("Select Name , Price , Quantity From Shares Where Quantity IS Not Null");
         return rs;
     }
     public void sellShares(String str , int quantity , int id) {
         try {
-            ResultSet rs = ConnectRead("Select Shares.ID ,  Shares.Quantity , Purchase.Quantity  from Purchase Inner Join Shares On Shares.ID = Purchase.SharesID Where Purchase.OwnerID = " + id + " And Name = '" + str + "'");
+            ResultSet rs = connectRead("Select Shares.ID ,  Shares.Quantity , Purchase.Quantity  from Purchase Inner Join Shares On Shares.ID = Purchase.SharesID Where Purchase.OwnerID = " + id + " And Name = '" + str + "'");
             while (rs.next()) {
                 if (rs.getInt(3) == quantity) {
-                    ConnectWrite("Delete Purchase From Purchase Inner Join Shares ON Shares.ID = Purchase.SharesID Where Purchase.OwnerID = " + id + " And Name = '" + str + "'");
-                    ConnectWrite("Update Shares Set Shares.Quantity = " + (rs.getInt(2) + quantity) + " Where Shares.Name = '" + str + "'");
-                    ConnectWrite("Update Profile Cross Join Shares Set Profile.Account = (Profile.Account + (Shares.Price * " + quantity + ")) Where Profile.ID = " + id + " AND Shares.Name = '" + str + "'");
+                    connectWrite("Delete Purchase From Purchase Inner Join Shares ON Shares.ID = Purchase.SharesID Where Purchase.OwnerID = " + id + " And Name = '" + str + "'");
+                    connectWrite("Update Shares Set Shares.Quantity = " + (rs.getInt(2) + quantity) + " Where Shares.Name = '" + str + "'");
+                    connectWrite("Update Profile Cross Join Shares Set Profile.Account = (Profile.Account + (Shares.Price * " + quantity + ")) Where Profile.ID = " + id + " AND Shares.Name = '" + str + "'");
                 } else if (rs.getInt(3) < quantity) {
                     System.out.println("ERROR \n You don't have so many shares");
                 } else if (rs.getInt(3) > quantity) {
-                    ConnectWrite("Update Purchase Inner Join Shares ON Shares.ID = Purchase.SharesID Set Purchase.Quantity = " + (rs.getInt(3) - quantity) + " Where Purchase.OwnerID = " + id + " And Shares.Name = '" + str + "'");
-                    ConnectWrite("Update Shares Set Shares.Quantity = " + (rs.getInt(2) + quantity) + " Where Shares.Name = '" + str + "'");
-                    ConnectWrite("Update Profile Cross Join Shares Set Profile.Account = (Profile.Account + (Shares.Price * " + quantity + ")) Where Profile.ID = " + id + " AND Shares.Name = '" + str + "'");
+                    connectWrite("Update Purchase Inner Join Shares ON Shares.ID = Purchase.SharesID Set Purchase.Quantity = " + (rs.getInt(3) - quantity) + " Where Purchase.OwnerID = " + id + " And Shares.Name = '" + str + "'");
+                    connectWrite("Update Shares Set Shares.Quantity = " + (rs.getInt(2) + quantity) + " Where Shares.Name = '" + str + "'");
+                    connectWrite("Update Profile Cross Join Shares Set Profile.Account = (Profile.Account + (Shares.Price * " + quantity + ")) Where Profile.ID = " + id + " AND Shares.Name = '" + str + "'");
                 }
             }
+            System.out.println("\n Successful \n");
         }catch (Exception e) {
             System.out.println(e);
         }
     }
-//    public void buyShares(String str , int quantity , int id) {
-//        int idShare = 0;
-//        try {
-//            ResultSet rs = ConnectRead("Select Shares.ID ,  Shares.Quantity , Purchase.Quantity  from Purchase Inner Join Shares On Shares.ID = Purchase.SharesID Where Purchase.OwnerID = " + id + " And Name = '" + str + "'");
-//            while (rs.next()) {
-//                if (rs.getInt(2) == quantity) {
-//                    ConnectWrite("Update Shares Set Shares.Quantity = 0 Where Shares.Name = '" + str + "'");
-//                    ResultSet resRead = ConnectRead("Select ID Shares Where Name = '" + str + "'");
-//                    while (resRead.next()) {
-//                        idShare = resRead.getInt(1);
-//                    }
-//                    ConnectWrite("Insert Into Purchase Inner Join Share (Purchase.SharesID , Purchase.OwnerId , Purchase.Quantity ) Values(" + idShare + " , " + id + " , '" + str + "'");
-//
-//                } else if (rs.getInt(2) < quantity) {
-//                    System.out.println("ERROR \n You can't buy more shares than we have");
-//                } else if (rs.getInt(2) > quantity) {
-//                    ConnectWrite("Update Purchase Inner Join Shares ON Shares.ID = Purchase.SharesID Set Purchase.Quantity = " + (rs.getInt(3) - quantity) + " Where Purchase.OwnerID = " + id + " And Shares.Name = '" + str + "'");
-//                    ConnectWrite("Update Shares Set Shares.Quantity = " + (rs.getInt(2) + quantity) + " Where Shares.Name = '" + str + "'");
-//                }
-//            }
-//        }catch (Exception e) {
-//            System.out.println(e);
-//        }
-//    }
+    public void buyShares(String str , int quantity , int id) {
+        boolean isEnough = false;
+        boolean isBoughtThisBefore = false;
+        int idShare = 0;
+        try{
+        ResultSet rsCheck = connectRead("Select Shares.Price , Profile.Account From Profile Cross Join Shares Where Profile.ID = " + id + " And Shares.Name = '" + str + "'");
+            while (rsCheck.next()) {
+                if (rsCheck.getInt(1) * quantity <= rsCheck.getInt(2)) {
+                    isEnough = true;
+                }
+            }
+            rsCheck = connectRead("Select * From Purchase Inner Join Shares On Shares.ID = Purchase.SharesID Where Name = '" + str + "'");
+            try {
+                int n = 0;
+                while (rsCheck.next()){
+                    n++;
+                }
+                if (n == 1) {
+                    isBoughtThisBefore = true;
+                }
+            }catch (Exception e) {
+                System.out.println(e);
+            }
+        }catch (Exception e) {
+            System.out.println(e);
+        }
+        if (isEnough) {
+            if (isBoughtThisBefore) {
+                ResultSet rs = connectRead("Select ID , Quantity From Shares Where Name = '" + str + "'");
+                try{
+                    while (rs.next()) {
+                        connectWrite("Update Purchase Set Quantity = Quantity + " + quantity + " Where OwnerID = " + id);
+                        connectWrite("Update Shares Set Shares.Quantity = " + (rs.getInt(2) - quantity) + " Where Shares.Name = '" + str + "'");
+                        connectWrite("Update Profile Cross Join Shares Set Profile.Account = (Profile.Account - (Shares.Price * " + quantity + ")) Where Profile.ID = " + id + " AND Shares.Name = '" + str + "'");
+                    }
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+            }else {
+                try {
+                    ResultSet rs = connectRead("Select ID , Quantity From Shares Where Name = '" + str + "'");
+                    while (rs.next()) {
+                        connectWrite("Insert Into Purchase (SharesID , OwnerID , Quantity) Values(" + rs.getInt(1) + " , " + id + " , " + quantity + " );");
+                        connectWrite("Update Shares Set Shares.Quantity = " + (rs.getInt(2) - quantity) + " Where Shares.Name = '" + str + "'");
+                        connectWrite("Update Profile Cross Join Shares Set Profile.Account = (Profile.Account - (Shares.Price * " + quantity + ")) Where Profile.ID = " + id + " AND Shares.Name = '" + str + "'");
+                    }
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+            }
+            System.out.println("\n Successful \n");
+        }else {
+            System.out.println("\n Don't enough money \n");
+        }
+    }
 }

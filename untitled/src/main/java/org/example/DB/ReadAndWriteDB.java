@@ -5,7 +5,7 @@ import java.sql.*;
 public class ReadAndWriteDB {
     private static final String nameDB = "Project";
     static private Connection con = null;
-    protected ResultSet ConnectRead(String command) {
+    protected ResultSet connectRead(String command) {
         try {
             PreparedStatement stmt = con.prepareStatement(command);
             ResultSet rs = stmt.executeQuery();
@@ -15,10 +15,17 @@ public class ReadAndWriteDB {
         }
     }
 
-    protected void ConnectWrite(String command) {
+    protected void connectWrite(String command) {
         try {
             PreparedStatement stmt = con.prepareStatement(command);
             boolean rs = stmt.execute();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void closeCon() {
+        try {
+            con.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
