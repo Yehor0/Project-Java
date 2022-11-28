@@ -1,4 +1,4 @@
-package org.example;
+package org.example.Share;
 
 import org.example.DB.SQLCommands;
 
@@ -8,7 +8,7 @@ import java.sql.SQLException;
 public class Shares {
     SQLCommands sql = new SQLCommands();
 
-    int ID;
+    private int ID;
 
     public void setID(int ID) {
         this.ID = ID;
@@ -27,7 +27,7 @@ public class Shares {
             throw new RuntimeException(e);
         }
     }
-    public void ShowUnBuyShares() {
+    public void showUnBuyShares() {
         try {
             ResultSet rs = sql.getUnBuyShares(ID);
             while (rs.next()) {
@@ -43,8 +43,9 @@ public class Shares {
     public void sellShares(String name , int quantity , int id){
             sql.sellShares(name.toLowerCase() , quantity, id);
     }
-    public void buyShares(String str , int quantity , int id) {
-            str = str.toLowerCase();
-            sql.buyShares(str , quantity , id);
+    public void buyShares(String shareName , int quantity , int id) {
+            shareName = shareName.toLowerCase();
+            //TODO check if share with shareName exists
+            sql.buyShares(shareName , quantity , id);
     }
 }

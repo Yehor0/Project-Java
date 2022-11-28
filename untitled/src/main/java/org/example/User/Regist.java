@@ -1,15 +1,18 @@
 package org.example.User;
 
+import lombok.Getter;
 import org.example.DB.SQLCommands;
 
 import java.util.Scanner;
 
 public class Regist {
+    @Getter
     private int ID;
     private String name;
     private String password;
     private SQLCommands sql = new SQLCommands();
     private Scanner scan = new Scanner(System.in);
+
 
     public void regist() {
         System.out.println("Write your nickname : ");

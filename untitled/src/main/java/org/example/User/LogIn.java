@@ -1,5 +1,6 @@
 package org.example.User;
 
+import lombok.Getter;
 import org.example.DB.SQLCommands;
 
 import java.util.Scanner;
@@ -9,6 +10,7 @@ public class LogIn {
     private SQLCommands sql = new SQLCommands();
     private String name;
     private String password;
+    @Getter
     private int ID;
 
     public boolean logInFunc() {
@@ -18,8 +20,5 @@ public class LogIn {
         this.password = scan.nextLine();
         this.ID = sql.takeID(name);
         return sql.logIn(name, password);
-    }
-    public int getID() {
-        return ID;
     }
 }

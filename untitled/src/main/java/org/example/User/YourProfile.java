@@ -5,12 +5,13 @@ import org.example.DB.SQLCommands;
 import java.util.Scanner;
 
 public class YourProfile {
-    SQLCommands sql = new SQLCommands();
-    Scanner scan = new Scanner(System.in);
-    Regist reg = new Regist();
-    public void ShowProfile(int ID) {
-       sql.showProfile(ID);
-       if (!sql.checkAdditionalInfo(ID)) {
+    private static final String _EXAMPLE_FOR_ME = "";
+    private SQLCommands sql = new SQLCommands();
+    private Scanner scan = new Scanner(System.in);
+    private Regist reg = new Regist();
+    public void showProfile(int id) {
+       sql.showProfile(id);
+       if (!sql.checkAdditionalInfo(id)) {
            System.out.println("Do you want add an additional information ");
            System.out.println("If yes press 1 , else press 2");
            int i = scan.nextInt();

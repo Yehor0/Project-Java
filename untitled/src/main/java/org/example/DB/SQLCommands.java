@@ -1,5 +1,7 @@
 package org.example.DB;
 
+import lombok.NonNull;
+
 import java.sql.*;
 
 public class SQLCommands extends ReadAndWriteDB{
@@ -92,15 +94,16 @@ public class SQLCommands extends ReadAndWriteDB{
                     connectWrite("Delete Purchase From Purchase Inner Join Shares ON Shares.ID = Purchase.SharesID Where Purchase.OwnerID = " + id + " And Name = '" + str + "'");
                     connectWrite("Update Shares Set Shares.Quantity = " + (rs.getInt(2) + quantity) + " Where Shares.Name = '" + str + "'");
                     connectWrite("Update Profile Cross Join Shares Set Profile.Account = (Profile.Account + (Shares.Price * " + quantity + ")) Where Profile.ID = " + id + " AND Shares.Name = '" + str + "'");
+                    System.out.println("\n Successful \n");
                 } else if (rs.getInt(3) < quantity) {
                     System.out.println("ERROR \n You don't have so many shares");
                 } else if (rs.getInt(3) > quantity) {
                     connectWrite("Update Purchase Inner Join Shares ON Shares.ID = Purchase.SharesID Set Purchase.Quantity = " + (rs.getInt(3) - quantity) + " Where Purchase.OwnerID = " + id + " And Shares.Name = '" + str + "'");
                     connectWrite("Update Shares Set Shares.Quantity = " + (rs.getInt(2) + quantity) + " Where Shares.Name = '" + str + "'");
                     connectWrite("Update Profile Cross Join Shares Set Profile.Account = (Profile.Account + (Shares.Price * " + quantity + ")) Where Profile.ID = " + id + " AND Shares.Name = '" + str + "'");
+                    System.out.println("\n Successful \n");
                 }
             }
-            System.out.println("\n Successful \n");
         }catch (Exception e) {
             System.out.println(e);
         }
@@ -110,7 +113,7 @@ public class SQLCommands extends ReadAndWriteDB{
         boolean isBoughtThisBefore = false;
         int idShare = 0;
         try{
-        ResultSet rsCheck = connectRead("Select Shares.Price , Profile.Account From Profile Cross Join Shares Where Profile.ID = " + id + " And Shares.Name = '" + str + "'");
+            @NonNull ResultSet rsCheck = connectRead("Select Shares.Price , Profile.Account From Profile Cross Join Shares Where Profile.ID = " + id + " And Shares.Name = '" + str + "'");
             while (rsCheck.next()) {
                 if (rsCheck.getInt(1) * quantity <= rsCheck.getInt(2)) {
                     isEnough = true;
@@ -133,7 +136,7 @@ public class SQLCommands extends ReadAndWriteDB{
         }
         if (isEnough) {
             if (isBoughtThisBefore) {
-                ResultSet rs = connectRead("Select ID , Quantity From Shares Where Name = '" + str + "'");
+                @NonNull ResultSet rs = connectRead("Select ID , Quantity From Shares Where Name = '" + str + "'");
                 try{
                     while (rs.next()) {
                         connectWrite("Update Purchase Set Quantity = Quantity + " + quantity + " Where OwnerID = " + id);
@@ -145,7 +148,7 @@ public class SQLCommands extends ReadAndWriteDB{
                 }
             }else {
                 try {
-                    ResultSet rs = connectRead("Select ID , Quantity From Shares Where Name = '" + str + "'");
+                    @NonNull ResultSet rs = connectRead("Select ID , Quantity From Shares Where Name = '" + str + "'");
                     while (rs.next()) {
                         connectWrite("Insert Into Purchase (SharesID , OwnerID , Quantity) Values(" + rs.getInt(1) + " , " + id + " , " + quantity + " );");
                         connectWrite("Update Shares Set Shares.Quantity = " + (rs.getInt(2) - quantity) + " Where Shares.Name = '" + str + "'");
@@ -157,7 +160,7 @@ public class SQLCommands extends ReadAndWriteDB{
             }
             System.out.println("\n Successful \n");
         }else {
-            System.out.println("\n Don't enough money \n");
+            System.out.println("\n ERROR \n");
         }
     }
     public boolean checkAdditionalInfo(int id) {
