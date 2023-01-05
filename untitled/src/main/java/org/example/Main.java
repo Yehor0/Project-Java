@@ -1,115 +1,98 @@
 package org.example;
 
-import lombok.NonNull;
-import org.example.DB.ReadAndWriteDB;
+import org.example.DB.SQLCommands;
 import org.example.Share.Shares;
-import org.example.User.LogIn;
-import org.example.User.Regist;
-import org.example.User.YourProfile;
+
 
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-
+        ConsoleManager consoleManager = new ConsoleManager();
+        SQLCommands sql = new SQLCommands(consoleManager);
         Scanner scan = new Scanner(System.in);
-        LogIn logIn = new LogIn();
-        Regist reg = new Regist();
-        Shares shares = new Shares();
-        YourProfile yourProfile = new YourProfile();
-        ReadAndWriteDB close = new ReadAndWriteDB();
-        String shareName;
+        UserObj user = new UserObj(consoleManager , sql);
+        Shares shares = new Shares(sql , consoleManager);
 
+        String shareName;
         boolean isLogIn = false;
-        boolean isReg = false;
-        int yourID = 0;
+        int yourId = 0;
         int scanRes = 0;
 
 
-        do {
-            if (isLogIn || isReg) {
-                if (isReg) {
-                   yourID = reg.getID();
-                }else {
-                   yourID =  logIn.getID();
-                }
-                shares.setID(yourID);
-                System.out.println("3 exit");
-                System.out.println("4 see shares, what you bought");
-                System.out.println("5 see shares, what you can bought");
-                System.out.println("6 see your profile");
-                System.out.println("7 sell your shares");
-                System.out.println("8 buy shares");
+        all:do {
+            if (isLogIn) {
+                yourId = user.getId();
+                shares.setID(yourId);
+                consoleManager.showMenuSecond();
                 try {
                     scanRes = scan.nextInt();
-                    //TODO Check negative numbers
-                    //TODO Check if number is between 3-8
                 } catch (Exception e) {
-                    System.out.println("Please write a number");
+                    consoleManager.writeNum();
+                    scanRes = 0;
                     continue;
                 }
                 switch(scanRes) {
-                    case 4 :
+                    case 1 :
                         shares.showYourShares();
+                        break;
+                    case 2 :
+                        shares.showUnBuyShares();
+                        break;
+                    case 4 :
+                        user.showProfile();
                         break;
                     case 5 :
-                        shares.showUnBuyShares();
-                        break;
-                    case 6 :
-                        yourProfile.showProfile(yourID);
-                        break;
-                    case 7 :
                         shares.showYourShares();
-                        System.out.println("What do you want sell : " );
+                        consoleManager.whatSell();
                         scan.nextLine();
                         shareName = scan.nextLine();
-                        System.out.println("How many : ");
+                        consoleManager.howMany();
                         scanRes = scan.nextInt();
-                        shares.sellShares(shareName , scanRes , yourID);
+                        shares.sellShares(shareName , scanRes , yourId);
                         scanRes = 0;
                         break;
-                    case 8 :
+                    case 6 :
                         shares.showUnBuyShares();
-                        System.out.println("What do you want buy : " );
+                        consoleManager.whatSell();
                         scan.nextLine();
                         shareName = scan.nextLine();
-                        System.out.println("How many : ");
+                        consoleManager.howMany();
                         scanRes = scan.nextInt();
-                        shares.buyShares(shareName , scanRes , yourID);
+                        shares.buyShares(shareName , scanRes , yourId);
                         scanRes =0;
                         break;
+                    case 3 :
+                        break all;
                     default:
-                        System.out.println("Wrong num");
-                        break;
+                        consoleManager.wrongNum();
+                        scanRes = 0;
+                        continue;
                 }
             } else {
-                System.out.println("Press : ");
-                System.out.println("1 login");
-                System.out.println("2 registration");
-                System.out.println("3 exit");
+                consoleManager.showMenuFirst();
                 try {
                     scanRes = scan.nextInt();
                 } catch (Exception e) {
-                    System.out.println("Please write a number");
+                    consoleManager.writeNum();
+                    scanRes = 0;
                     break;
                 }
                 switch (scanRes) {
                     case 1:
-                        wh:while (isLogIn != true || isReg != true) {
-                            if (logIn.logInFunc() == false) {
-                                System.out.println("Password or nickname incorrect");
-                                System.out.println("If want registration write 1 or if you want go back write 2");
+                        wh:while (isLogIn != true) {
+                            if (user.logInFunc() == false) {
+                                consoleManager.incorrectLogIn();
                                 scanRes = scan.nextInt();
                                 switch (scanRes) {
                                     case 1 :
-                                        reg.regist();
-                                        System.out.println("Do you want add an additional information ");
-                                        System.out.println("If yes press 1 , else press 2");
+                                        user.regist();
+                                        consoleManager.addAdditionalInfo();
                                         int i = scan.nextInt();
                                         if (i == 1) {
-                                            reg.additionalInfo();
+                                            user.additionalInfo();
                                         }
-                                        isReg = true;
+                                        isLogIn = true;
                                         scanRes = 0;
                                         break;
                                     case 2 :
@@ -117,29 +100,27 @@ public class Main {
                                         break wh;
                                 }
                             } else {
-                                System.out.println("Successful");
+                                consoleManager.successful();
                                 isLogIn = true;
                                 break;
                             }
                         }
                         break;
                     case 2:
-                            reg.regist();
-                            System.out.println("Do you want add an additional information ");
-                            System.out.println("If yes press 1 , else press 2");
+                            user.regist();
+                            consoleManager.addAdditionalInfo();
                             int i = scan.nextInt();
                             if (i == 1) {
-                                reg.additionalInfo();
+                                user.additionalInfo();
                             }
                         break;
+                    case 3 :
+                        break all;
                     default:
-                        System.out.println("Wrong num");
-                        break;
+                        consoleManager.wrongNum();
+                        scanRes = 0;
+                        continue;
                 }
-            }
-            if (scanRes == 3) {
-                close.closeCon();
-                break;
             }
         }while (true);
     }

@@ -1,31 +1,33 @@
 package org.example.DB;
 
+import org.example.JSONWork.JsonReader;
+
 import java.sql.*;
 
 public class ReadAndWriteDB {
-    private static final String NAME_DB = "Project";
     static private Connection con = null;
-    protected ResultSet connectRead(String command) {
+
+    protected ResultSet readFromDB(String command , String... arg) {
         try {
             PreparedStatement stmt = con.prepareStatement(command);
+            //TODO stmt.setString();
+            for (int i =1 ; i <= arg.length ;i++) {
+                stmt.setString(i , arg[i-1]);
+            }
             ResultSet rs = stmt.executeQuery();
             return rs;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-
-    protected void connectWrite(String command) {
+    protected void writeToDB(String command , String... arg) {
         try {
             PreparedStatement stmt = con.prepareStatement(command);
+            //TODO stmt.setString();
+            for (int i =1 ; i <= arg.length ;i++) {
+                stmt.setString(i , arg[i-1]);
+            }
             boolean rs = stmt.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    public static void closeCon() {
-        try {
-            con.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -33,11 +35,9 @@ public class ReadAndWriteDB {
 
 
     static {
+        JsonReader jsonReader = new JsonReader();
         try {
-            con = DriverManager.getConnection(("jdbc:mysql://localhost:3306/"  + NAME_DB), "root", "561151181Yehor*");
-            //TODO Move configuration to separate file
-            //TODO Store configuration in JSON format
-            //TODO Use JSON library
+            con = DriverManager.getConnection(jsonReader.getConnectionUrl() , jsonReader.getUserName() , jsonReader.getPassword());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

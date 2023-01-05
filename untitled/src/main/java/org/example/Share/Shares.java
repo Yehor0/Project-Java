@@ -1,12 +1,18 @@
 package org.example.Share;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.example.ConsoleManager;
 import org.example.DB.SQLCommands;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
+@RequiredArgsConstructor()
 public class Shares {
-    SQLCommands sql = new SQLCommands();
+    @NonNull
+    private SQLCommands sql;
+    @NonNull
+    private ConsoleManager consoleManager;
 
     private int ID;
 
@@ -18,10 +24,7 @@ public class Shares {
         try {
             ResultSet rs = sql.getYourShares(ID);
             while (rs.next()) {
-                System.out.println("Name : " + rs.getString(1));
-                System.out.println("Price one : " + rs.getInt(2));
-                System.out.println("Quantity : " + rs.getInt(3));
-                System.out.println("All price : " + rs.getInt(2) * rs.getInt(3) + "\n");
+                consoleManager.showShareInfo(rs.getString(1) , rs.getInt(2) , rs.getInt(3));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -31,21 +34,27 @@ public class Shares {
         try {
             ResultSet rs = sql.getUnBuyShares(ID);
             while (rs.next()) {
-                System.out.println("Name : " + rs.getString(1));
-                System.out.println("Price one : " + rs.getInt(2));
-                System.out.println("Quantity : " + rs.getInt(3) + "\n");
+                consoleManager.showShareInfo(rs.getString(1) , rs.getInt(2) , rs.getInt(3));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void sellShares(String name , int quantity , int id){
-            sql.sellShares(name.toLowerCase() , quantity, id);
+    public void sellShares(String shareName , int quantity , int id){
+        if (sql.checkIsShareExist(shareName)) {
+            sql.sellShares(shareName.toLowerCase(), quantity, id);
+        }else {
+            consoleManager.wrongNameOfShare();
+        }
     }
     public void buyShares(String shareName , int quantity , int id) {
-            shareName = shareName.toLowerCase();
-            //TODO check if share with shareName exists
-            sql.buyShares(shareName , quantity , id);
+            if (sql.checkIsShareExist(shareName)) {
+                shareName = shareName.toLowerCase();
+                //TODO check if share with shareName exists
+                sql.buyShares(shareName, quantity, id);
+            }else {
+                consoleManager.wrongNameOfShare();
+            }
     }
 }
