@@ -8,19 +8,22 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        ConsoleManager consoleManager = new ConsoleManager();
-        SQLCommands sql = new SQLCommands(consoleManager);
+        Initializer initializer = new Initializer();
+        ConsoleManager consoleManager = initializer.getConsoleManager();
+        SQLCommands sql = initializer.getSql();
         Scanner scan = new Scanner(System.in);
-        UserObj user = new UserObj(consoleManager , sql);
-        Shares shares = new Shares(sql , consoleManager);
+        UserObj user = initializer.getUser();
+        Shares shares = initializer.getShares();
+        SwitchCaseMain caseWork = initializer.getSwitchCaseMain();
 
-        String shareName;
         boolean isLogIn = false;
         int yourId = 0;
         int scanRes = 0;
 
 
-        all:do {
+
+        all:
+        do {
             if (isLogIn) {
                 yourId = user.getId();
                 shares.setID(yourId);
@@ -32,37 +35,23 @@ public class Main {
                     scanRes = 0;
                     continue;
                 }
-                switch(scanRes) {
-                    case 1 :
-                        shares.showYourShares();
+                switch (scanRes) {
+                    case 1:
+                        caseWork.first();
                         break;
-                    case 2 :
-                        shares.showUnBuyShares();
+                    case 2:
+                        caseWork.second();
                         break;
-                    case 4 :
-                        user.showProfile();
+                    case 4:
+                        caseWork.fourth();
                         break;
-                    case 5 :
-                        shares.showYourShares();
-                        consoleManager.whatSell();
-                        scan.nextLine();
-                        shareName = scan.nextLine();
-                        consoleManager.howMany();
-                        scanRes = scan.nextInt();
-                        shares.sellShares(shareName , scanRes , yourId);
-                        scanRes = 0;
+                    case 5:
+                        caseWork.fifth(yourId);
                         break;
-                    case 6 :
-                        shares.showUnBuyShares();
-                        consoleManager.whatSell();
-                        scan.nextLine();
-                        shareName = scan.nextLine();
-                        consoleManager.howMany();
-                        scanRes = scan.nextInt();
-                        shares.buyShares(shareName , scanRes , yourId);
-                        scanRes =0;
+                    case 6:
+                        caseWork.sixth(yourId);
                         break;
-                    case 3 :
+                    case 3:
                         break all;
                     default:
                         consoleManager.wrongNum();
@@ -80,41 +69,12 @@ public class Main {
                 }
                 switch (scanRes) {
                     case 1:
-                        wh:while (isLogIn != true) {
-                            if (user.logInFunc() == false) {
-                                consoleManager.incorrectLogIn();
-                                scanRes = scan.nextInt();
-                                switch (scanRes) {
-                                    case 1 :
-                                        user.regist();
-                                        consoleManager.addAdditionalInfo();
-                                        int i = scan.nextInt();
-                                        if (i == 1) {
-                                            user.additionalInfo();
-                                        }
-                                        isLogIn = true;
-                                        scanRes = 0;
-                                        break;
-                                    case 2 :
-                                        scanRes =0;
-                                        break wh;
-                                }
-                            } else {
-                                consoleManager.successful();
-                                isLogIn = true;
-                                break;
-                            }
-                        }
+                        isLogIn = caseWork.firstLogIn();
                         break;
                     case 2:
-                            user.regist();
-                            consoleManager.addAdditionalInfo();
-                            int i = scan.nextInt();
-                            if (i == 1) {
-                                user.additionalInfo();
-                            }
+                        caseWork.secondLogIn();
                         break;
-                    case 3 :
+                    case 3:
                         break all;
                     default:
                         consoleManager.wrongNum();
@@ -122,6 +82,6 @@ public class Main {
                         continue;
                 }
             }
-        }while (true);
+        } while (true);
     }
 }
